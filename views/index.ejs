@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>Phone Verification</title>
+  <meta name="description" content="">
+  <meta name="keywords" content="">
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <!-- Vendor CSS Files -->
+  <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+
+  <!-- intl-tel-input CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/css/intlTelInput.min.css">
+
+  <!-- Custom CSS -->
+  <style>
+    body,
+    html {
+      height: 100%;
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .container {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      background: url('assets/img/bacground-1.jpg') no-repeat center center;
+      background-size: cover;
+      height: 100vh;
+
+    }
+
+    .main {
+      background-color: rgba(255, 255, 255, 0.95);
+      border-radius: 15px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+      max-width: 400px;
+      padding: 40px;
+      margin-right: 50px;
+      width: 100%;
+      text-align: center;
+    }
+
+    h1 {
+      color: #333;
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
+
+    .form-control {
+      padding: 15px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+      margin-bottom: 20px;
+      transition: border-color 0.3s;
+    }
+
+    .form-control:focus {
+      border-color: #3498db;
+      box-shadow: 0 0 8px rgba(52, 152, 219, 0.5);
+    }
+
+    .btn-primary {
+      background-color: #34bf49;
+      border-color: #34bf49;
+      padding: 15px 40px;
+      border-radius: 50px;
+      font-size: 16px;
+      font-weight: 500;
+      transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .btn-primary:hover {
+      background-color: #34bf49;
+    }
+
+    #verificationSection {
+      display: none;
+    }
+
+    /* Adjust Spacing */
+    .form-group {
+      margin-bottom: 30px;
+    }
+
+    /* Responsive Design for Mobile */
+    @media (max-width: 767px) {
+      .container {
+        flex-direction: column;
+        justify-content: center;
+        background-size: cover;
+      }
+
+      .main {
+        margin: 0;
+        max-width: 90%;
+      }
+    }
+  </style>
+
+</head>
+
+<body>
+
+  <div class="container">
+    <main class="main">
+      <h2 class="mb-4">Phone Verification</h2>
+      <form id="phoneForm" action="/send-code" method="POST">
+        <div class="form-group mb-3">
+          <input id="phone" type="tel" class="form-control" name="phone" placeholder="phone number" required>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Send Code</button>
+      </form>
+
+      <!-- Hidden form for entering verification code -->
+      <div id="verificationSection">
+        <h2>Verification Code</h2>
+        <form id="verificationForm" action="/verify-code" method="POST">
+          <input type="hidden" id="hiddenPhone" name="phone">
+          <div class="form-group">
+            <input id="verificationCode" type="text" class="form-control" name="code"
+              placeholder="Enter verification code" required>
+          </div>
+          <button type="submit" class="btn btn-primary btn-block">Verify Code</button>
+        </form>
+      </div>
+    </main>
+  </div>
+
+  <!-- Vendor JS Files -->
+  <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+  <!-- intl-tel-input JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
+  <script>
+    // Initialize intl-tel-input
+    var phoneInput = document.querySelector("#phone");
+    var iti = window.intlTelInput(phoneInput, {
+      separateDialCode: true,
+      nationalMode: false,
+      utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.min.js" // Optional
+    });
+
+    // Add the country code before the phone number on form submit
+    document.querySelector("#phoneForm").addEventListener("submit", function (event) {
+      var fullPhoneNumber = iti.getNumber();
+      phoneInput.value = fullPhoneNumber;
+    });
+
+    // Show the verification form after sending the code
+    document.querySelector("#phoneForm").addEventListener("submit", async function (event) {
+      event.preventDefault();
+      const phoneNumber = iti.getNumber();
+      const response = await fetch('/send-code', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: phoneNumber })
+      });
+
+      const result = await response.text();
+      if (result === 'exists') {
+        document.getElementById('hiddenPhone').value = phoneNumber;
+        document.getElementById('verificationSection').style.display = 'block';
+      } else {
+        alert('Phone number not authorized.');
+      }
+    });
+  </script>
+
+</body>
+
+</html>
