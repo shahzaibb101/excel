@@ -10,6 +10,11 @@
             margin-top: 20px;
             background: #f8f8f8;
         }
+
+        .custom-btn {
+            background-color: #34bf49 !important; 
+            border-color: #34bf49 !important;
+        }
     </style>
     <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
@@ -34,6 +39,16 @@
                         <li class="nav-item" role="presentation">
                             <a class="nav-link" id="completed-polls-tab" data-bs-toggle="tab" href="#completed-polls"
                                 role="tab" aria-controls="completed-polls" aria-selected="false">Completed Polls</a>
+                        </li>
+                        <!-- MainText Tab -->
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link" id="main-text-tab" data-bs-toggle="tab" href="#main-text" role="tab"
+                                aria-controls="main-text" aria-selected="false">Main Text</a>
+                        </li>
+                        <!-- Images Tab -->
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link" id="images-tab" data-bs-toggle="tab" href="#images" role="tab"
+                                aria-controls="images" aria-selected="false">Images</a>
                         </li>
                     </ul>
 
@@ -155,7 +170,7 @@
                                                                                         <div
                                                                                             class="col d-flex justify-content-end">
                                                                                             <button
-                                                                                                class="btn btn-primary"
+                                                                                                class="btn btn-primary custom-btn"
                                                                                                 type="submit">Save
                                                                                                 Changes</button>
                                                                                         </div>
@@ -177,7 +192,7 @@
                                     <div class="card">
                                         <div class="card-body">
                                             <div class="text-center px-xl-3">
-                                                <button class="btn btn-success btn-block" type="button" style="background-color: #34bf49; border-color: #34bf49;"
+                                                <button class="btn btn-success btn-block custom-btn" type="button"
                                                     data-bs-toggle="modal" data-bs-target="#new-poll-modal">New
                                                     Poll</button>
                                             </div>
@@ -220,7 +235,7 @@
                                                 </div>
                                                 <div class="row">
                                                     <div class="col d-flex justify-content-end">
-                                                        <button class="btn btn-primary" type="submit">Create
+                                                        <button class="btn btn-primary custom-btn" type="submit">Create
                                                             Poll</button>
                                                     </div>
                                                 </div>
@@ -359,7 +374,7 @@
                                                                                         <div
                                                                                             class="col d-flex justify-content-end">
                                                                                             <button
-                                                                                                class="btn btn-primary"
+                                                                                                class="btn btn-primary custom-btn"
                                                                                                 type="submit">Save
                                                                                                 Changes</button>
                                                                                         </div>
@@ -381,7 +396,7 @@
                                     <div class="card">
                                         <div class="card-body">
                                             <div class="text-center px-xl-3">
-                                                <button class="btn btn-success btn-block" type="button" style="background-color: #34bf49; border-color: #34bf49;"
+                                                <button class="btn btn-success btn-block custom-btn" type="button"
                                                     data-bs-toggle="modal" data-bs-target="#new-excel-file-modal">New
                                                     Excel File</button>
                                             </div>
@@ -390,6 +405,72 @@
                                 </div>
                             </div>
                         </div>
+
+                        <!-- Main Text Tab Content -->
+                        <div class="tab-pane fade" id="main-text" role="tabpanel" aria-labelledby="main-text-tab">
+                            <div class="row flex-lg-nowrap">
+                                <div class="col mb-3">
+                                    <div class="e-panel card">
+                                        <div class="card-body">
+                                            <h3>Edit Main Text</h3>
+                                            <form class="form" action="/update-maintext" method="POST" novalidate="">
+                                                <div class="mb-3">
+                                                    <label for="heading" class="form-label">Heading</label>
+                                                    <input class="form-control" type="text" id="heading" name="heading"
+                                                        value="<%= maintext.heading %>" required>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="subheading" class="form-label">Subheading</label>
+                                                    <input class="form-control" type="text" id="subheading" name="subheading"
+                                                        value="<%= maintext.subheading %>" required>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col d-flex justify-content-end">
+                                                        <button class="btn btn-primary custom-btn" type="submit">Save Changes</button>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Images Tab Content -->
+                        <div class="tab-pane fade" id="images" role="tabpanel" aria-labelledby="images-tab">
+                            <div class="row flex-lg-nowrap">
+                                <div class="col mb-3">
+                                    <div class="e-panel card">
+                                        <div class="card-body">
+                                            <h3>Edit Images</h3>
+                                            <form class="form" action="/update-images" method="POST" enctype="multipart/form-data">
+                                                <div class="mb-3">
+                                                    <label for="img1" class="form-label">Image 1</label>
+                                                    <input class="form-control" type="file" id="img1" name="img1">
+                                                    <img src="<%= images.img1 %>" alt="Image 1" style="width: 100px; margin-top: 10px;">
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="img2" class="form-label">Image 2</label>
+                                                    <input class="form-control" type="file" id="img2" name="img2">
+                                                    <img src="<%= images.img2 %>" alt="Image 2" style="width: 100px; margin-top: 10px;">
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label for="img3" class="form-label">Image 3</label>
+                                                    <input class="form-control" type="file" id="img3" name="img3">
+                                                    <img src="<%= images.img3 %>" alt="Image 3" style="width: 100px; margin-top: 10px;">
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col d-flex justify-content-end">
+                                                        <button class="btn btn-primary" type="submit">Save Changes</button>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
 
                 </div>
@@ -418,7 +499,7 @@
                                     </div>
                                     <div class="row">
                                         <div class="col d-flex justify-content-end">
-                                            <button class="btn btn-primary" type="submit">Upload File</button>
+                                            <button class="btn btn-primary custom-btn" type="submit">Upload File</button>
                                         </div>
                                     </div>
                                 </form>

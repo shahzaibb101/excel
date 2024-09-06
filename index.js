@@ -5,7 +5,10 @@ const connectDB = require('./db');
 const PhoneNumber = require('./models/phoneNumbers');
 const ActivePolls = require('./models/activePolls');
 const ExcelFile = require('./models/excelFiles');
+const MainText = require('./models/mainText');
+const Images = require('./models/images');
 const Admin = require('./models/admin');
+const multer = require('multer');
 const bodyParser = require('body-parser');
 const session = require('express-session');
 const app = express();
@@ -22,6 +25,19 @@ const twilioClient = twilio(accountSid, authToken);
 
 const serviceId = process.env.TWILIO_SERVICE_ID;
 
+// Configure multer for image uploads
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/');
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + path.extname(file.originalname)); // Append the file extension
+  }
+});
+
+const upload = multer({ storage });
+
+
 // Other middleware and routes
 app.use(express.json()); // For parsing application/json
 app.use(express.urlencoded({ extended: true })); // For parsing application/x-www-form-urlencoded
@@ -34,11 +50,36 @@ app.set('views', path.join(__dirname, 'views'));
 // Serve static files from the 'public' directory
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Serve static files from 'uploads'
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 app.use(session({
   secret: 'your-secret-key',
   resave: false,
   saveUninitialized: true
 }));
+
+// Update Images Route
+app.post('/update-images', upload.fields([{ name: 'img1' }, { name: 'img2' }, { name: 'img3' }]), async (req, res) => {
+  const img1 = req.files.img1 ? req.files.img1[0].path : undefined;
+  const img2 = req.files.img2 ? req.files.img2[0].path : undefined;
+  const img3 = req.files.img3 ? req.files.img3[0].path : undefined;
+
+  try {
+    // Find the first document in the Images collection and update it
+    const updateData = {};
+    if (img1) updateData.img1 = img1;
+    if (img2) updateData.img2 = img2;
+    if (img3) updateData.img3 = img3;
+
+    await Images.findOneAndUpdate({}, updateData);
+
+    res.redirect('/admin');
+  } catch (error) {
+    console.error('Error updating images:', error.message);
+    res.status(500).send('Server error');
+  }
+});
 
 // Route to render index.ejs
 app.get('/', (req, res) => {
@@ -54,7 +95,9 @@ app.get('/home', async (req, res) => {
   try {
     const excelfiles = await ExcelFile.find();
     const polls = await ActivePolls.find({ completed: false }); // Fetch only active polls
-    res.render('home', { excelfiles: excelfiles, polls: polls });
+    const maintext = await MainText.findOne();
+    const images = await Images.findOne(); 
+    res.render('home', { excelfiles: excelfiles, polls: polls, maintext: maintext, images, images });
   } catch (error) {
     console.error('Error fetching data:', error.message);
     res.status(500).send('Server error');
@@ -123,8 +166,11 @@ app.get('/admin', async (req, res) => {
     // Fetch Excel files for the second tab
     const excelfiles = await ExcelFile.find();
 
+    const maintext = await MainText.findOne();
+    const images = await Images.findOne(); 
+
     // Render the admin template and pass the active and completed polls to the view
-    res.render('admin', { polls: activePolls, completedPolls: completedPolls, excelfiles: excelfiles });
+    res.render('admin', { polls: activePolls, completedPolls: completedPolls, excelfiles: excelfiles, maintext: maintext, images: images });
   } catch (error) {
     console.error('Error fetching polls:', error.message);
     res.status(500).send('Server error');
@@ -215,6 +261,21 @@ app.delete('/delete-excel-file/:id', async (req, res) => {
     res.sendStatus(200);
   } catch (error) {
     res.status(500).send('Error deleting Excel file entry');
+  }
+});
+
+app.post('/update-maintext', async (req,res) => {
+  const { heading, subheading } = req.body;
+
+  try {
+    // Find the MainText document and update it
+    await MainText.findOneAndUpdate({}, { heading, subheading });
+
+    // Redirect back to the home page or show a success message
+    res.redirect('/admin'); // or adjust the redirect as needed
+  } catch (error) {
+    console.error('Error updating MainText:', error.message);
+    res.status(500).send('Server error');
   }
 });
 
